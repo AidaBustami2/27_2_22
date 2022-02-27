@@ -1,4 +1,5 @@
 FROM centos:7
+USER root
 ENV container docker
 RUN yum -y update; yum clean all
 RUN yum -y install systemd; yum clean all; \
@@ -10,11 +11,25 @@ rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
 rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
 rm -f /lib/systemd/system/basic.target.wants/*;\
 rm -f /lib/systemd/system/anaconda.target.wants/*;
-RUN mkdir -p /var/www/html
-RUN mkdir -p /etc/yum.repos.d/
-RUN mkdir -p /root/test
-RUN mkdir -p  /sys/fs/cgroup
+COPY .  /root/test
+ADD isRunning.sh  /root/test/
+ADD isInstalled.sh /root/test/
+ADD createRepo.sh  /root/test/
+RUN chmod 777  /root/test/createRepo.sh
+RUN chmod 777  /root/test/isRunning.sh
+RUN  chmod 777  /root/test/isInstalled.sh
+WORKDIR /root/test
+
+RUN ./createRepo.sh
+
+
+RUN yum -y  --disablerepo=* --enablerepo=test  install httpd
+RUN yum -y --disablerepo=* --enablerepo=test  install initscripts
+RUN yum -y --disablerepo=* --enablerepo=test   install net-tools
+RUN  sed -i   '42s/Listen 80/Listen 8899/' /etc/httpd/conf/httpd.conf
+RUN systemctl enable httpd
+RUN /usr/sbin/httpd
+
+
 VOLUME [ "/sys/fs/cgroup" ]
-CMD ["/usr/sbin/init"]
-
-
+CMD  [ "/usr/sbin/init"]
