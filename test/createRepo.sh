@@ -4,7 +4,7 @@ rm -rf /etc/yum.repos.d/test.repo || true
 touch /etc/yum.repos.d/test.repo
 var="[test]
 name=test
-baseurl=http://172.20.48.154:8899
+baseurl=:file:///var/www/html
 enabled=1
 gpgcheck=0";
 destdir=/etc/yum.repos.d/test.repo
