@@ -26,7 +26,6 @@ RUN yum -y --disablerepo=* --enablerepo=test  install initscripts
 RUN yum -y --disablerepo=* --enablerepo=test   install net-tools
 RUN  sed -i   '42s/Listen 80/Listen 8899/' /etc/httpd/conf/httpd.conf
 RUN systemctl enable httpd
-RUN /usr/sbin/httpd
 
 
 VOLUME [ "/sys/fs/cgroup" ]
